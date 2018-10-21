@@ -1,0 +1,263 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<script type="text/javascript" src="js/jquery.min.js" ></script>
+		<script type="text/javascript" src="js/jquery-1.11.3.min.js" ></script>
+		<style>
+			.lunbo {
+				width: 100%;
+				height:140px;
+			}
+			.group {
+				display: flex;
+				flex-flow: row nowrap;
+				flex: 1 1 0;
+				height: 200px;
+				text-align: center;
+			}
+			
+			.item {
+				width: 50%;
+				height: 100%;
+				padding: 15px;
+			}
+			
+			.billboard {
+				width: 100%;
+				height: 100%;
+				line-height: 100%;
+				border-radius: 5px;
+				display: table;
+			}
+			
+			.billboard-title {
+				color: white;
+				font-size: 18px;
+				display: table-cell;
+				vertical-align: middle;
+			}
+			.movie-image{
+				width: 80px !important;
+				height: 100px !important;
+				margin-right: 20px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav" >
+		    <h1 class="mui-title">榜单</h1>
+		</header>
+		<div class="mui-content">
+			<!--轮播图开始-->
+		    <div id="slider" class="mui-slider" >
+		      <div class="mui-slider-group mui-slider-loop">
+		        <!-- 额外增加的一个节点(循环轮播：第一个节点是最后一张轮播) -->
+		        <div class="mui-slider-item mui-slider-item-duplicate">
+		          <a href="#">
+		            <img src="imgs/lunbo4.jpg" class="lunbo">
+		          </a>
+		        </div>
+		        <!-- 第一张 -->
+		        <div class="mui-slider-item">
+		          <a href="#">
+		            <img src="imgs/lunbo1.jpg" class="lunbo">
+		          </a>
+		        </div>
+		        <!-- 第二张 -->
+		        <div class="mui-slider-item">
+		          <a href="#">
+		            <img src="imgs/lunbo2.jpg" class="lunbo">
+		          </a>
+		        </div>
+		        <!-- 第三张 -->
+		        <div class="mui-slider-item">
+		          <a href="#">
+		            <img src="imgs/lunbo3.jpg" class="lunbo">
+		          </a>
+		        </div>
+		        <!-- 第四张 -->
+		        <div class="mui-slider-item">
+		          <a href="#">
+		            <img src="imgs/lunbo4.jpg" class="lunbo">
+		          </a>
+		        </div>
+		        <!-- 额外增加的一个节点(循环轮播：最后一个节点是第一张轮播) -->
+		        <div class="mui-slider-item mui-slider-item-duplicate">
+		          <a href="#">
+		            <img src="imgs/lunbo1.jpg" class="lunbo">
+		          </a>
+		        </div>
+		      </div>
+		      <div class="mui-slider-indicator">
+		        <div class="mui-indicator mui-active"></div>
+		        <div class="mui-indicator"></div>
+		        <div class="mui-indicator"></div>
+		        <div class="mui-indicator"></div>
+		      </div>
+		    </div>
+		    <!--轮播图结束-->
+		    
+		    <!--榜单开始-->
+		    <div class="group">
+				<div class="item">
+					<div id="billboard_top" class="billboard" style="background: linear-gradient(#941AE6,#F1E0FC);background: -webkit-gradient(#941AE6,#F1E0FC);">
+						<span class="billboard-title">
+							豆瓣Top250
+						</span>
+					</div>
+				</div>
+				<div class="item">
+					<div id="billboard_box" class="billboard" style="background: linear-gradient(#3370CC,#CEE1FD);background: -webkit-gradient(#3370CC,#CEE1FD);">
+						<span class="billboard-title">
+							北美票房榜
+						</span>
+					</div>
+				</div>
+			</div>
+			<!--榜单结束-->
+			<div  style="margin-left: 15px;color: #333333;font-size: 14px;">
+				即将上映
+			</div>
+				  <div class="mui-scroll">
+				    <!--数据列表-->
+				    <ul class="mui-table-view" id="movies">
+				      <li class="mui-table-view-cell" v-for="(item,index) in moviesList" >
+				      	<img class="mui-pull-left movie-image" :src="item.cover" @tap="getDetail(item)"/>
+				      	<div class="mui-media-body" @tap="getDetail(item)">
+				      		{{item.title}}
+				      		<p class="mui-ellipsis">电影类型：{{item.genres}}</p>
+				      		<p  class="mui-ellipsis">导演:{{item.directors}}</p>
+				      		<p  class="mui-ellipsis">演员:{{item.casts}}</p>
+				      		<p  class="mui-ellipsis">评分：<span v-if="item.score>0" class="orange-small">{{item.score}}分</span>
+								<span v-else class="orange-small">暂无评分</span></p>
+				      	</div>
+				      	 <button type="button" class="mui-btn mui-btn-warning mui-btn-outlined" 
+				      	 	@click="changecolor(index)">
+				      	 	想看
+				      	 </button>
+				      </li>
+				      
+				      
+				    </ul>
+				  </div>
+		</div>
+		
+		
+		<script src="js/mui.min.js"></script>
+		<script type="text/javascript" src="js/vue.min.js" ></script>
+		
+		<script type="text/javascript">
+			mui.init();
+			mui('.mui-slider').slider({
+				interval: 3000 //自动轮播周期 默认0，这里3s
+			});
+			
+			function changecolor(index){
+				var val=$('button').eq(index).attr("class");//这里获取class值
+				var length=val.length;
+                if (length!=24) {
+                	$('button').eq(index).removeClass("mui-btn-warning");
+				    $('button').eq(index).text("已想看");
+                	
+                } else{
+                	$('button').eq(index).addClass("mui-btn-warning");
+				    $('button').eq(index).text("想看");
+                	
+                }
+		        }
+		    	var movies_data=new Vue({
+				el:"#movies",
+				data:{
+					moviesList:[]
+				},
+				methods:{
+					//打开详情页面
+					getDetail:function(item){
+						//触发详情页面的自定义事件
+						mui.fire(detailPage,'movieId',{
+							id:item.id
+						});
+						detailPage.show('slide-in-right');
+					}
+				}
+			});
+			
+			mui.plusReady(function(){
+				//给detailPage赋值,根据ID获取详情页面
+				detailPage = plus.webview.getWebviewById('movieDetail');
+				if(!detailPage){
+					detailPage = mui.preload({
+						id:'movieDetail',
+						url:'movieDetail.html'
+					});
+				}
+				
+				mui.getJSON(
+				'http://api.douban.com/v2/movie/coming_soon',
+				{start:0,
+				count:10},
+				function(data){
+					//获得服务器响应
+					movies_data.moviesList=convert(data.subjects);
+				}
+				);
+				
+			});
+			
+				function convert(items){
+				var newItems = [];
+				//遍历
+				items.forEach(function(item){
+					var genres = item.genres.toString().replace(/,/g,' / ');
+					var directors = '';
+					for(var i=0;i<item.directors.length;i++){
+						directors += item.directors[i].name;
+						if(i != item.directors.length - 1){
+							directors += ' / ';
+						}
+					}
+					var casts = '';
+					for(var i=0;i<item.casts.length;i++){
+						casts += item.casts[i].name;
+						if(i != item.casts.length - 1){
+							casts += ' / ';
+						}
+					}
+					newItems.push({
+						id:item.id,
+						title:item.title,
+						genres:genres,
+						cover:item.images.large,
+						score:item.rating.average,
+						directors:directors,
+						casts:casts
+					});
+				});
+				return newItems;
+			}
+				
+			mui("#billboard_top").on('tap','.billboard-title',function(){
+				mui.openWindow({
+					url:'top.html',
+					id:'top'
+					
+				});
+			});
+			//给北美票房榜添加点击事件
+			
+			mui("#billboard_box").on('tap','.billboard-title',function(){
+				mui.openWindow({
+					url:'box.html',
+					id:'box'
+				});
+			});
+		</script>
+	</body>
+
+</html>

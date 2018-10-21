@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>Hello MUI</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<link rel="stylesheet" href="css/mui.css" />
+		<link rel="stylesheet" href="css/style.css" />
+		<style>
+			html,
+			body {
+				background-color: white;
+			}
+			
+			.mui-bar-nav div {
+				display: inline-block;
+			}
+			
+			.mui-bar-nav {
+				height: 10px;
+			}
+			
+			.menu-1 {
+				width: 10%;
+				line-height: 44px;
+				vertical-align: middle;
+			}
+			
+			.menu-1 img {
+				line-height: 44px;
+				margin-left: 15px;
+				margin-top: -10px;
+			}
+			
+			.menu-2 {
+				line-height: 44px;
+				font-size: 20px;
+				color: black;
+				text-align: center;
+				margin-top: -75px;
+				margin-right: 110px;
+			}
+			
+			
+			.tubiao img {
+				margin-top: 30px;
+				padding-left: 30px;
+				!important;
+			}
+			
+			.head-name {
+				margin-left: 160px;
+				margin-top: -46px;
+			}
+			
+			.mui-navigate-right{
+			background-image: url(img/1.jpg);
+			}
+		</style>
+	</head>
+
+	<body>
+		 <div id="sheet" class="mui-popover mui-popover-bottom mui-popover-action ">
+			<!-- 可选择菜单 -->
+			<ul class="mui-table-view">
+				<li class="mui-table-view-cell" onclick="dial()">
+					<a href="#">拨打电话</a>
+				</li>
+				<li class="mui-table-view-cell" onclick="sendMsg()">
+					<a href="#">短信联系</a>
+				</li>
+				<li class="mui-table-view-cell" onclick="sendMail()">
+					<a href="#">邮件联系</a>
+				</li>
+			</ul>
+			<!-- 取消菜单 -->
+			<ul class="mui-table-view">
+				<li class="mui-table-view-cell">
+					<a href="#sheet"><b>取消</b></a>
+				</li>
+			</ul>
+		</div>
+		<!-- 缩放式侧滑（类手机QQ） -->
+		<!-- 侧滑导航根容器 -->
+		<div class="mui-off-canvas-wrap mui-draggable mui-scalable" style="background-image: url(imgs/1.jpg)">
+			<!-- 主页面容器 -->
+			<div class="mui-inner-wrap mui-transitioning">
+				<!-- 主页面标题 -->
+				<header class="mui-bar mui-bar-nav" style="background-image: url(imgs/1.jpg)">
+					<a class="mui-icon mui-action-menu mui-icon-bars mui-pull-right" id="login" href="#offCanvasSide"></a>
+				</header>
+				
+				<div class="mui-content mui-scroll-wrapper" style="background-image: url(imgs/1.jpg)">
+					<div class="mui-scroll">
+						<!-- 主界面具体展示内容 -->
+						<div id="auth">
+							<div class="menu-1">
+								<img :src="headImage" @tap="click2()" width="80px" style="border-radius: 40px;" />
+							</div>
+								<div class="head-name">
+									{{headName}}
+								</div>
+								<ul class="mui-table-view" style="margin-top: 65px; background-image: url(imgs/1.jpg);">
+								        <li class="mui-table-view-cell" >
+								            <a class="mui-navigate-right">
+								            	<span class="mui-badge mui-badge-primary mui-badge-inverted">22</span>
+								               我喜欢
+								            </a>
+								        </li>
+								        <li class="mui-table-view-cell">
+								            <a class="mui-navigate-right">
+								            	<span class="mui-badge mui-badge-primary mui-badge-inverted">15</span>
+								                 我看过
+								            </a>
+								        </li>
+								        <li class="mui-table-view-cell">
+								            <a class="mui-navigate-right">
+								            	<span class="mui-badge mui-badge-primary mui-badge-inverted">200</span>
+								                 音乐
+								            </a>
+								        </li>
+								        <li class="mui-table-view-cell">
+								            <a class="mui-navigate-right">
+								            	<span class="mui-badge mui-badge-primary mui-badge-inverted">5</span>
+								                 日记
+								            </a>
+								        </li>
+								        <li class="mui-table-view-cell">
+								            <a class="mui-navigate-right">
+								            	<span class="mui-badge mui-badge-primary mui-badge-inverted">30</span>
+								                 图书
+								            </a>
+								        </li>
+								        <li id="cache" class="mui-table-view-cell">
+											<a class="dark-big">清除缓存</a>
+										</li>
+										<li id="cache" class="mui-table-view-cell">
+											<a class="dark-big" href="#sheet" id="openSheet">联系客服</a>
+										</li>
+								    </ul>
+								    
+							<div class="tubiao">
+								<img src="imgs/icon-qq.png" @tap="click1('qq')" />
+								<img src="imgs/icon-weixin.png" @tap="click1('weixin')" />
+								<img src="imgs/icon-weibo.png" @tap="click1('sinaweibo')" />
+								<img src="imgs/icon-xiaomi.png" @tap="click1('xiaomi')"/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="mui-off-canvas-backdrop"></div>
+			</div>
+		</div>
+
+	</body>
+	<script type="text/javascript" src="js/mui.js"></script>
+	<script type="text/javascript" src="js/vue.min.js"></script>
+	<script type="text/javascript" src="js/jquery.min.js" ></script>
+	<script>
+		mui.init();
+		var authVue=new Vue({
+			el:"#auth",
+			data:{
+				headImage:"imgs/tt2.jpg",
+				headName:""
+			}
+		});
+		$(".mui-badge").hide();
+		
+		var auths=null;
+		mui.plusReady(function(){
+			//授权可以登录的服务列表
+			plus.oauth.getServices(function(s){
+				for(var i in s){
+				}
+				auths=s;
+			},function(e){
+				console.log(e.message);
+			});
+		});
+		var s=null;//授权登录的服务对象
+		function click1(type){
+			for(var i=0;i<auths.length;i++){
+				if(auths[i].id==type){
+					s=auths[i];
+					break;
+				}
+			}
+			//登录，首先判断是否授权，再进行登录
+			if(!s.authResult){
+				s.login(function(){
+					getUser(type);
+					$(".mui-badge").show();
+					$(".tubiao").hide();
+				},function(){
+					console.log("登录失败");
+				});
+			}else{
+				mui.toast("您已经登录");
+			}
+			
+		}
+		function getUser(type){
+				s.getUserInfo(function(event){
+					var user=event.target.userInfo;
+					console.log(JSON.stringify(user));
+					//QQ:user.figureurl_2头像 user.nickname昵称
+					//weixin：user.headimgurl头像 user.nickname昵称
+					plus.storage.setItem("user",user);
+					if(type=='qq'){
+						authVue.headImage=user.figureurl_2;
+					}else{
+						authVue.headImage=user.headimgurl;
+					}
+					authVue.headName=user.nickname;
+				});
+			}
+		function click2(){
+			if(s!=null){
+				s.logout(function(){
+					authVue.headImage="imgs/tt2.jpg";
+					authVue.headName=null;
+					mui.toast("退出登录");
+					s=null;
+				});
+				$(".mui-badge").hide();
+				$(".tubiao").show();
+			}else{
+				mui.toast("您还没有登录");
+			}
+		}
+		
+		function dial() {
+				//填写手机号码，转到拨电话的界面
+				plus.device.dial("18602752716", true);
+				//number：（string）必选 要拨打的电话号码
+				//confirm：（boolean）可选 是否需要用户确认后开始拨打电话
+				//设置为true表示打开系统拨打电话界面，需用户点击拨号按钮后才可以拨号
+				//false则无需确认直接拨打电话，默认值为true
+			}
+		function sendMsg() {
+				var msg = plus.messaging.createMessage(plus.messaging.TYPE_SMS);
+				msg.to = ['18602752716'];
+				msg.body = '';
+				plus.messaging.sendMessage(msg);
+			}
+
+		function sendMail() {
+			var msg = plus.messaging.createMessage(plus.messaging.TYPE_EMAIL);
+			msg.to = ['601921763@qq.com'];
+			msg.subject = '';
+			msg.body = '';
+			plus.messaging.sendMessage(msg, function() {
+				console.log("发送成功");
+			}, function() {
+				console.log("发送失败");
+			});
+		}
+		
+		mui.plusReady(function() {
+			//给cache节点添加点击事件，清除缓存
+			document.getElementById('cache').addEventListener('tap', function() {
+				plus.cache.clear(function() {
+					mui.toast('清除缓存成功');
+				});
+			});
+		});
+		
+
+		
+	</script>
+
+</html>

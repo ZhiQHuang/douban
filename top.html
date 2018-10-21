@@ -1,0 +1,196 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/style.css" rel="stylesheet" />
+		<style type="text/css">
+			.top-nav {
+				background: white
+			}
+			/*排序数字样式*/
+			.top-index{
+				color: red;
+				font-size: 16px;
+				font-style: italic;
+				width: 30px;
+				display: inline-block;
+				margin-top: 40px;
+				margin-bottom: 15px;
+			}
+			
+			/*线的样式*/
+			.line{
+				width: 50px;
+				height: 0.5px;
+				background: #C4C4C4;
+				display: inline-block;
+				vertical-align: middle;
+			}
+			/*card样式*/
+			.card{
+				margin-left: 15px;
+				margin-right: 15px;
+				height: 120px;
+				border: 1px solid #C4C4C4;
+				border-radius: 2px;
+				box-shadow: 0px 1px 5px #C4C4C4;
+				padding: 15px;
+				text-align: left;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+			<h1 class="mui-title">豆瓣Top250</h1>
+		</header>
+		<div id="refreshContainer" class="mui-content" style="background: white;">
+			<div  class="mui-scroll-wrapper" style="top:84.5px;background: white;">
+			    <div class="mui-scroll">
+			        <ul id="movies" style="list-style: none;padding-left: 1px;margin-top: 0px;">
+			        	<li v-for="(item,index) in movieList" @tap="getDetail(item)">
+			        		<div style="text-align: center;">
+			        			<div class="line">&nbsp;</div>
+			        			<div class="top-index">{{index+1}}</div>
+			        			<div class="line">&nbsp;</div>
+			        		</div>
+			        		<div class="card">
+			        			<img :src="item.images" class="mui-pull-left" style="width: 70px;height: 95px;margin-right: 10px;"/>
+			        			<div class="dark-big">{{item.title}}&nbsp;
+			        			  <span style="color: #797979;">({{item.year}})</span></div>
+			        			<div style="line-height: 20px;">
+			        				<span class="gray-small">豆瓣评分：</span><span class="orange-small">{{item.score}}分</span>
+			        			</div>
+			        			<span class="gray-small mui-ellipsis" style="display: block;line-height: 20px;">
+			        				导演：{{item.directors}}
+			        			</span>
+			        			<span class="gray-small mui-ellipsis" style="display: block;line-height: 20px;">
+			        				演员：{{item.casts}}
+			        			</span>
+			        		</div>
+			        	</li>
+			        </ul>
+			    </div>
+			</div>
+			
+			
+		</div>
+		<script src="js/mui.min.js"></script>
+		<script src="js/vue.min.js"></script>
+		<script type="text/javascript">
+			var detailPage = null;
+			var movies_data=new Vue({
+				el:"#movies",
+				data:{
+					movieList:[]
+				},
+				methods:{
+					//打开详情页面
+					getDetail:function(item){
+						//触发详情页面的自定义事件
+						mui.fire(detailPage,'movieId',{
+							id:item.id
+						});
+						detailPage.show('slide-in-right');
+					}
+				}
+			});
+			mui.plusReady(function(){
+				//给detailPage赋值,根据ID获取详情页面
+				detailPage = plus.webview.getWebviewById('movieDetail');
+				if(!detailPage){
+					detailPage = mui.preload({
+						id:'movieDetail',
+						url:'movieDetail.html'
+					});
+				}
+				
+			});
+			
+			mui.init({
+			  pullRefresh : {
+			    container:"#refreshContainer",//待刷新区域标识，querySelector能定位的css选择器均可，比如：id、.class等
+			    down : {
+			      height:50,//可选,默认50.触发下拉刷新拖动距离,
+			      auto: true,//可选,默认false.首次加载自动下拉刷新一次
+			      contentdown : "下拉可以刷新",//可选，在下拉可刷新状态时，下拉刷新控件上显示的标题内容
+			      contentover : "释放立即刷新",//可选，在释放可刷新状态时，下拉刷新控件上显示的标题内容
+			      contentrefresh : "正在刷新...",//可选，正在刷新状态时，下拉刷新控件上显示的标题内容
+			      callback : loadMoreData //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+			    },
+			    up : {
+			      height:50,//可选.默认50.触发上拉加载拖动距离
+			      auto:true,//可选,默认false.自动上拉加载一次
+			      contentrefresh : "正在加载...",//可选，正在加载状态时，上拉加载控件上显示的标题内容
+			      contentnomore:'没有更多数据了',//可选，请求完毕若没有更多数据时显示的提醒内容；
+			      callback :pullfresh //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+			    }
+			  }
+			});
+			function pullfresh(){
+				//获取下一页的数据，获取10条数据
+				mui.getJSON(
+					'http://api.douban.com/v2/movie/top250',
+					{start:movies_data.movieList.length,count:10},
+					function(data){
+						//获取服务器响应
+						//每当获取新的电影数据，就要和原来已有的数据进行合并
+						//数组合并：concat
+						movies_data.movieList=movies_data.movieList.concat(convert(data.subjects));
+						//没有更多内容了，endPulldown传入true，不在执行下拉刷新
+						//加载完新数据后，必须执行如下代码，true表示没有更多数据了
+						//若为ajax请求，则需将如下代码放置在处理完ajax响应数据之后
+						var bool=movies_data.movieList>=data.total;
+						mui('#refreshContainer').pullRefresh().endPullupToRefresh(bool);
+					}
+				);
+			}
+			function loadMoreData(){
+				//下拉刷新
+				//获取新的数据，默认获取10条数据
+				mui.getJSON(
+					'http://api.douban.com/v2/movie/top250',
+					{start:0,count:10},
+					function(data){
+						movies_data.movieList=movies_data.movieList.concat(convert(data.subjects));
+						mui('#refreshContainer').pullRefresh().endPulldown();
+					}
+				);
+			}
+			function convert(items){
+				var list=[];
+				items.forEach(function(item){
+					var casts="";
+					for(var i=0;i<item.casts.length;i++){
+						casts+=item.casts[i].name+" ";
+					}
+					var directors="";
+					for(var i=0;i<item.directors.length;i++){
+						directors+=item.directors[i].name+" ";
+					}
+					list.push(
+						{
+							
+							id:item.id,
+							title:item.title,
+							images:item.images.large,
+							genres:item.genres.toString(),
+							directors:directors,
+							score:item.rating.average,
+							casts:casts,
+							year:item.year
+						}
+					);
+					
+				});
+				return list;
+			}
+		</script>
+	</body>
+
+</html>

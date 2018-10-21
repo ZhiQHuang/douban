@@ -1,0 +1,56 @@
+{
+	"index.html": {
+		"resources": [
+			"hotMovies.html"
+		],
+		"refer": [
+			"wode.html",
+			"box.html",
+			"hotMovies.html",
+			"detail.html",
+			"movieDetail.html",
+			"main_box.html",
+			"my.html",
+			"main.html"
+		]
+	},
+	"hotMovies.html": {
+		"refer": [
+			"detail.html",
+			"movieDetail.html",
+			"search_box.html"
+		]
+	},
+	"movieDetail.html": {
+		"refer": [
+			"castDetail.html"
+		]
+	},
+	"main_box.html": {
+		"refer": [
+			"top.html",
+			"box.html",
+			"movieDetail.html"
+		]
+	},
+	"main.html": {
+		"resources": [
+			"hotMovies.html"
+		],
+		"refer": [
+			"my.html",
+			"main_box.html",
+			"hotMovies.html"
+		]
+	},
+	"my.html": {
+		"refer": [
+			"login.html"
+		]
+	},
+	"login.html": {
+		"refer": [
+			"my.html"
+		]
+	}
+}

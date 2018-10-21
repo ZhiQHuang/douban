@@ -1,0 +1,167 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<style>
+			.movie-image{
+				width: 80px !important;
+				height: 100px !important;
+				margin-right: 20px;
+			}
+			.star{
+				height: 14px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+		    <h1 class="mui-title ">搜索结果</h1>
+		</header>
+		<div class="mui-content" style="background: white;">
+		
+				  <div class="mui-scroll" @click="changeimg()">
+				    <!--数据列表-->
+				    <ul class="mui-table-view" id="movies">
+				      <li class="mui-table-view-cell" v-for="(item,index) in moviesList" @tap="getDetail(item)">
+				      	<img class="mui-pull-left movie-image" :src="item.images"/>
+				      	<div class="mui-media-large">
+				      		{{item.title}}
+				      		<span style="color:#777777">({{item.year}})</span>
+				      		
+				      		<p class="mui-ellipsis">
+				      			<span v-if="item.score>=9&&item.score<10" >
+				      			<img src="imgs/nine.png"class="star"/>
+				      			</span>
+								<span v-else-if="item.score>=8&&item.score<9" >
+									<img src="imgs/eight.png"class="star"/>
+								</span>
+								<span v-else-if="item.score>=7&&item.score<8" >
+									<img src="imgs/seven.png"class="star"/>
+								</span>
+								<span v-else-if="item.score>=6&&item.score<7" >
+									<img src="imgs/six.png"class="star"/>
+								</span>
+								<span v-else-if="item.score>=5&&item.score<6" >
+									<img src="imgs/five.png"class="star"/>
+								</span>
+								<span v-else-if="item.score>0&&item.score<5" >
+									<img src="imgs/four.png"class="star"/>
+								</span>
+								
+								<span v-else="item.score=0" >
+									暂无评价
+								</span>
+								{{item.score}}分
+				      		</p>
+				      		
+				      		
+				      		<p class="mui-ellipsis">电影类型：{{item.genres}}</p>
+				      		<p  class="mui-ellipsis">导演:{{item.directors}}</p>
+				      		<p  class="mui-ellipsis">演员:{{item.casts}}</p>				      		
+				      		</p>
+				      	</div>
+				      </li>
+				      
+				      
+				    </ul>
+				  </div>
+          
+		</div>
+		<script src="js/mui.min.js"></script>
+		<script type="text/javascript" src="js/jquery.min.js" ></script>
+		<script type="text/javascript" src="js/jquery-1.11.3.min.js" ></script>
+		<script type="text/javascript" src="js/vue.min.js" ></script>
+		<script type="text/javascript">
+		  
+		</script>
+		<script type="text/javascript">
+			var movies_data=new Vue({
+				el:"#movies",
+				data:{
+					moviesList:[]
+				},
+				methods: {
+					//打开详情页面
+					getDetail: function(item) {
+						//触发详情页面的自定义事件
+						mui.fire(detailPage, 'movieId', {
+							id: item.id
+						});
+						detailPage.show('slide-in-right');
+					}
+				}
+			});
+		
+				
+				mui.plusReady(function(){
+					
+					//给detailPage赋值,根据ID获取详情页面
+					detailPage = plus.webview.getWebviewById('movieDetail');
+					if(!detailPage) {
+						detailPage = mui.preload({
+							id: 'movieDetail',
+							url: 'movieDetail.html'
+						});
+					}
+						
+					var self=plus.webview.currentWebview();
+					var name=self.keyname;
+					console.log(name);
+					mui.getJSON(
+					'http://api.douban.com/v2/movie/search?q='+name,
+					function(data){
+						//获得服务器响应
+						movies_data.moviesList=covert(data.subjects);
+					}
+					);
+				
+			});
+			
+				function covert(items){
+					var list=[];
+					items.forEach(function(item){
+						var casts = '';
+					    for(var i=0;i<item.casts.length;i++){
+						casts += item.casts[i].name;
+						if(i != item.casts.length - 1){
+							casts += ' / ';
+						}
+					}   
+					var title=item.title;
+					    if (item.title.length>9) {
+				      title=item.title.substring(0, 9) + "...";
+			}
+					    
+					    var directors='';
+					    for (var i=0;i<item.directors.length;i++) {
+					    	
+					    	directors=item.directors[0].name
+					    	
+					    }
+					    var genres = item.genres.toString().replace(/,/g,' / ');
+						list.push({
+							id:item.id,
+							title:title,
+							images:item.images.large,
+							genres:genres,
+							directors:directors,
+							score:item.rating.average,
+							casts:casts,
+							year:item.year
+							
+						});
+						
+					});
+					return list;
+				}
+	
+		</script>
+	</body>
+
+</html>

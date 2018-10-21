@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>首页</title>
+		<script src="js/mui.min.js"></script>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<link href="css/style.css" rel="stylesheet" />
+		<style>
+			html,
+			body {
+				background-color: white;
+			}
+			
+			.wrap-search {
+				margin: 15px;
+				background: #E6E6E6;
+				height: 30px;
+				border-radius: 5px;
+				text-align: center;
+			}
+			
+			.item-img {
+				width: 70px;
+				height: 100px;
+				margin-right: 10px;
+			}
+			.star{
+				height: 14px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div style="width: 90%;display: inline-block;padding-left: 15px;margin-top: 15px;text-align: center; ">
+			<div id="searchContainer" class="mui-input-row mui-search">
+				<input id="searchInput" type="search" class="mui-input-clear" v-model="keyname" placeholder="电影/电视剧/影人" onkeyup="enterSearch(event)" />
+			</div>
+		</div>
+		<div class="mui-content" style="background: white;">
+			<div id="refreshContainer" class="mui-scroll-wrapper" style="top: 50px;">
+				<div class="mui-scroll">
+					<ul id="movies" class="mui-table-view">
+						<li class="mui-table-view-cell" v-for="item in movieList" @tap="getDetail(item)">
+							<img class="mui-pull-left item-img" :src="item.images" />
+							<div class="mui-ellipsis dark-big">
+								{{item.title}}
+							</div>
+							<div class="mui-ellipsis orange-small">
+								<span v-if="item.score>=9&&item.score<10" >
+				      				<img src="imgs/nine.png"class="star"/>
+				      			</span>
+								<span v-else-if="item.score>=8&&item.score<9" >
+									<img src="imgs/eight.png"class="star"/>
+								</span>
+								<span v-else-if="item.score>=7&&item.score<8" >
+									<img src="imgs/seven.png"class="star"/>
+								</span>
+								<span v-else-if="item.score>=6&&item.score<7" >
+									<img src="imgs/six.png"class="star"/>
+								</span>
+								<span v-else-if="item.score>=5&&item.score<6" >
+									<img src="imgs/five.png"class="star"/>
+								</span>
+								<span v-else-if="item.score>0&&item.score<5" >
+									<img src="imgs/four.png"class="star"/>
+								</span>
+								<span v-else="item.score=0" >
+									暂无评分
+								</span>
+								<span v-if="item.score>0">
+									{{item.score}}分
+								</span>
+							</div>
+							<div class="mui-ellipsis">
+								<span class="gray-small">{{item.genres}}</span>&nbsp;
+							</div>
+							<div class="mui-ellipsis gray-small">
+								导演：{{item.directors}}
+							</div>
+							<div class="mui-ellipsis gray-small">
+								主演：{{item.casts}}
+							</div>
+						</li>
+					</ul>
+				</div>
+
+			</div>
+		</div>
+
+		<script src="js/vue.min.js" type="text/javascript"></script>
+		<script type="text/javascript" src="js/jquery.min.js" ></script>
+		<script type="text/javascript">
+			var movies_data = new Vue({
+				el: "#movies",
+				data: {
+					movieList: []
+				},
+				methods: {
+					//打开详情页面
+					getDetail: function(item) {
+						//触发详情页面的自定义事件
+						mui.fire(detailPage, 'movieId', {
+							id: item.id
+						});
+						detailPage.show('slide-in-right');
+					}
+				}
+			});
+
+			mui.plusReady(function() {
+				//给detailPage赋值,根据ID获取详情页面
+				detailPage = plus.webview.getWebviewById('movieDetail');
+				if(!detailPage) {
+					detailPage = mui.preload({
+						id: 'movieDetail',
+						url: 'movieDetail.html'
+					});
+				}
+			});
+
+			mui.init({
+				pullRefresh: {
+					container: "#refreshContainer",
+					down: {
+						height: 50, //可选,默认50.触发下拉刷新拖动距离,
+						auto: true, //可选,默认false.首次加载自动下拉刷新一次
+						contentdown: "下拉可以刷新", //可选，在下拉可刷新状态时，下拉刷新控件上显示的标题内容
+						contentover: "释放立即刷新", //可选，在释放可刷新状态时，下拉刷新控件上显示的标题内容
+						contentrefresh: "正在刷新...", //可选，正在刷新状态时，下拉刷新控件上显示的标题内容
+						callback: loadMoreData //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+					},
+					up: {
+						height: 50, //可选.默认50.触发上拉加载拖动距离
+						auto: true, //可选,默认false.自动上拉加载一次
+						contentrefresh: "正在加载...", //可选，正在加载状态时，上拉加载控件上显示的标题内容
+						contentnomore: '没有更多数据了', //可选，请求完毕若没有更多数据时显示的提醒内容；
+						callback: pullfresh //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+					}
+				}
+			});
+
+			function pullfresh() {
+				mui.getJSON(
+					'https://api.douban.com/v2/movie/in_theaters', {
+						start: movies_data.movieList.length,
+						count: 10
+					},
+					function(data) {
+						movies_data.movieList = movies_data.movieList.concat(convert(data.subjects));
+						var bool = movies_data.movieList >= data.total;
+						mui('#refreshContainer').pullRefresh().endPullupToRefresh(bool);
+
+					}
+				);
+			}
+
+			function loadMoreData() {
+				mui.getJSON(
+					'https://api.douban.com/v2/movie/in_theaters', {
+						start: 0,
+						count: 10
+					},
+					function(data) {
+						movies_data.movieList = convert(data.subjects);
+						mui('#refreshContainer').pullRefresh().endPulldown();
+					}
+				);
+			}
+
+			function convert(items) {
+				var list = [];
+				items.forEach(function(item) {
+					var casts = "";
+					for(var i = 0; i < item.casts.length; i++) {
+						casts += item.casts[i].name;
+						if(i != item.casts.length - 1) {
+							casts += ' / ';
+						}
+					}
+					var genres = item.genres.toString().replace(/,/g, ' / ');
+					var directors = '';
+					for(var i = 0; i < item.directors.length; i++) {
+						directors += item.directors[i].name;
+						if(i != item.directors.length - 1) {
+							directors += ' / ';
+						}
+					}
+
+					list.push({
+						id: item.id,
+						title: item.title,
+						images: item.images.large,
+						genres: genres,
+						directors: directors,
+						score: item.rating.average,
+						casts: casts
+					});
+				});
+				return list;
+			}
+
+			function enterSearch(e) {
+				if(e.keyCode == 13) {
+					$("#searchInput").blur();
+					mui.openWindow({
+						id: 'search_box.html',
+						url: 'search_box.html',
+						extras: {
+							keyname: $("#searchInput").val()
+						}
+					})
+
+				}
+			}
+		</script>
+	</body>
+
+</html>

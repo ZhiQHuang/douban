@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>Hello MUI</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<link rel="stylesheet" href="../css/mui.min.css">
+		<link rel="stylesheet" href="../css/style.css">
+		<style>
+			html,
+			body {
+				background-color: white;
+			}
+			
+			.mui-bar-nav div {
+				display: inline-block;
+			}
+			
+			.menu-1 {
+				width: 10%;
+				line-height: 44px;
+				vertical-align: middle;
+			}
+			
+			.menu-1 img {
+				line-height: 44px;
+				margin-left: 150px;
+			}
+			
+			.menu-2 {
+				margin-left: 130px;
+				line-height: 44px;
+				font-size: 20px;
+				color: black;
+				text-align: center;
+				margin-top: -75px;
+			}
+			
+			.mui-table-view-cell {
+				background-color: white;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- 缩放式侧滑（类手机QQ） -->
+		<!-- 侧滑导航根容器 -->
+		<div class="mui-off-canvas-wrap mui-draggable mui-scalable"style="background-image: url(../images/1.jpg);">
+			<!-- 菜单容器 -->
+			<aside class="mui-off-canvas-left mui-transitioning" id="offCanvasSide"style="background-image: url(../images/1.jpg);">
+				<div class="mui-scroll-wrapper">
+					<div class="mui-scroll">
+						<!-- 菜单具体展示内容 -->
+						<ul class="mui-table-view">
+							<li class="mui-table-view-cell">
+								<a class="mui-navigate-right dark-big">意见反馈</a>
+							</li>
+							<li id="cache" class="mui-table-view-cell">
+								<a class="mui-navigate-right dark-big">清除缓存</a>
+							</li>
+							<li id="about" class="mui-table-view-cell">
+								<a class="mui-navigate-right dark-big">关于我们</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</aside>
+			<!-- 主页面容器 -->
+			<div class="mui-inner-wrap mui-transitioning">
+				<!-- 主页面标题 -->
+				<header class="mui-bar mui-bar-nav"style="background-image: url(../images/1.jpg);">
+					<a class="mui-icon mui-action-menu mui-icon-bars mui-pull-right" href="#offCanvasSide"></a>
+					<h1 class="mui-title">我的</h1>
+				</header>
+
+				<div class="mui-content mui-scroll-wrapper"style="background-image: url(../images/1.jpg);">
+					<div class="mui-scroll">
+						<!-- 主界面具体展示内容 -->
+						<div class="menu-1">
+							<img src="../images/头像1.jpg" width="80px" style="border-radius: 40px;" />
+						</div>
+						<div class="menu-2"onclick="login()">
+							登录
+						</div>
+					</div>
+				</div>
+				<div class="mui-off-canvas-backdrop"></div>
+			</div>
+		</div>
+	</body>
+	<script src="../js/mui.min.js"></script>
+	<script>
+		mui.init({
+			swipeBack: true //启用右滑关闭功能
+		});
+
+		//给about节点添加点击事件
+		document.getElementById('about').addEventListener('tap', function() {
+			//打开关于我们页面
+			mui.openWindow({
+				id: 'about',
+				url: './about.html'
+			});
+		});
+
+		mui.plusReady(function() {
+			//给cache节点添加点击事件，清除缓存
+			document.getElementById('cache').addEventListener('tap', function() {
+				plus.cache.clear(function() {
+					mui.toast('清除缓存成功');
+				});
+			});
+		})
+	</script>
+
+</html>
